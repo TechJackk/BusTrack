@@ -114,6 +114,7 @@ function PassengerDashboard() {
             <tr>
               <th className="p-2 border">Bus ID</th>
               <th className="p-2 border">Route #</th>
+              <th className="p-2 border">Seat Vacancy</th>
               <th className="p-2 border">Action</th>
             </tr>
           </thead>
@@ -122,10 +123,11 @@ function PassengerDashboard() {
               <tr key={bus._id}>
                 <td className="p-2 border">{bus.busId}</td>
                 <td className="p-2 border">{bus.routeNumber}</td>
-                <td className="p-2 border">
+                <td className="border px-2 py-1 text-center">{bus.seatVacancy}</td>
+                <td className="p-2 border text-center">
                   <button
                     onClick={() => handleBusClick(bus._id)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded"
+                    className="bg-green-500 text-white px-2 py-1 rounded hover:border-2 hover:border-green-400 hover:bg-white hover:text-green-500 transition duration-200 ease-in-out"
                   >
                     Show on Map
                   </button>

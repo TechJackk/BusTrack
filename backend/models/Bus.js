@@ -5,6 +5,11 @@ const busSchema = new mongoose.Schema({
   route: { type: mongoose.Schema.Types.ObjectId, ref: "Route" }, // Reference to Route model
   routeNumber: { type: String, required: true },
   totalSeats: { type: Number, required: true },
+  seatVacancy: {
+  type: Number,
+  default: 0,
+},
+
 });
 
 module.exports = mongoose.model("Bus", busSchema);

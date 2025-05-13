@@ -11,6 +11,7 @@ function DriverDashboard() {
   const [buses, setBuses] = useState([]); // List of buses assigned to the driver
   const [loading, setLoading] = useState(true); // Loading state
   const watchIdRef = useRef(null);
+  const [vacancy, setVacancy] = useState("");
 
   // Fetch buses assigned to the driver
   useEffect(() => {
@@ -68,6 +69,20 @@ function DriverDashboard() {
     setCoords({ lat: null, lng: null });
   };
 
+  const handleSeatUpdate = async () => {
+  try {
+    const res = await axios.patch(`http://localhost:5000/api/driver/updateSeats/${busId}`, {
+      vacancy,
+    });
+    alert("✅ Seat vacancy updated!");
+  } catch (err) {
+    alert("❌ Failed to update");
+    console.error("Error updating seat vacancy:", err);
+    console.log(busId);
+    console.log(vacancy);
+  }
+};
+
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">🚌 Driver Live Tracker</h2>
@@ -98,6 +113,22 @@ function DriverDashboard() {
         )}
       </div>
 
+      <div className="mt-4">
+        <label>Available Seats: </label>
+        <input
+          type="number"
+          value={vacancy}
+          onChange={(e) => setVacancy(e.target.value)}
+          className="border p-1 mx-2"
+        />
+        <button
+          onClick={handleSeatUpdate}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          Update Seats
+        </button>
+      </div>
+
       {!sharingLocation ? (
         <button
           onClick={startTrip}
@@ -124,6 +155,7 @@ function DriverDashboard() {
           Sending live location: <b>{coords.lat}</b>, <b>{coords.lng}</b>
         </p>
       )}
+
     </div>
   );
 }
