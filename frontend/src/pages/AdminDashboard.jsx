@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
   const [routes, setRoutes] = useState([]);
   const [buses, setBuses] = useState([]);
   const [routeForm, setRouteForm] = useState({ routeNumber: "", startPoint: "", endPoint: "" });
   const [busForm, setBusForm] = useState({ busId: "", routeNumber: "", totalSeats: "" });
+
+  // Check if the user is an admin
+  if (role !== "admin") {
+    alert("You are not authorized to access this page.");
+    navigate("/login");
+  }
 
   // Fetch routes & buses
   const fetchData = async () => {

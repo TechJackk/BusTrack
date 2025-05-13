@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const socket = io("http://localhost:5000");
 
 function DriverDashboard() {
+  const navigate = useNavigate();
   const [coords, setCoords] = useState({ lat: null, lng: null });
   const [sharingLocation, setSharingLocation] = useState(false);
   const [busId, setBusId] = useState(""); // Selected busId
@@ -12,6 +14,12 @@ function DriverDashboard() {
   const [loading, setLoading] = useState(true); // Loading state
   const watchIdRef = useRef(null);
   const [vacancy, setVacancy] = useState("");
+
+  const role = localStorage.getItem("role");
+  if (role !== "driver") {
+    alert("You are not authorized to access this page.");
+    navigate("/login");
+  }
 
   // Fetch buses assigned to the driver
   useEffect(() => {
@@ -73,7 +81,9 @@ function DriverDashboard() {
   try {
     const res = await axios.patch(`http://localhost:5000/api/driver/updateSeats/${busId}`, {
       vacancy,
-    });
+    },
+    { headers : {Authorization: `${localStorage.getItem("token")}`}}
+  );
     alert("✅ Seat vacancy updated!");
   } catch (err) {
     alert("❌ Failed to update");

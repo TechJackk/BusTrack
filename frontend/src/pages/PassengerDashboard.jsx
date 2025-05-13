@@ -3,16 +3,25 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 const socket = io("http://localhost:5000");
 
 function PassengerDashboard() {
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
   const [routes, setRoutes] = useState([]);
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [matchedBuses, setMatchedBuses] = useState([]);
   const [busLocations, setBusLocations] = useState({});
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  // Check if the user is a passenger
+  if (role !== "passenger") {
+    alert("You are not authorized to access this page.");
+    navigate("/login");
+  }
 
   // Fetch all routes on mount
   useEffect(() => {

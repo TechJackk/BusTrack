@@ -17,6 +17,8 @@ function Login() {
     const res = await axios.post("/auth/login", formData);
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
+    console.log(res.data.user);
+    console.log(res.data.token);
     alert("Login successful!");
 
     const role = res.data.user.role.toLowerCase();
