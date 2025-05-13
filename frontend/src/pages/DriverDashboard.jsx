@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/bg.png";
+import useAuth from "../hooks/useAuth";
+import "./signup.css"
 
 const socket = io("http://localhost:5000");
 
 function DriverDashboard() {
+  const user = useAuth();
   const navigate = useNavigate();
   const [coords, setCoords] = useState({ lat: null, lng: null });
   const [sharingLocation, setSharingLocation] = useState(false);
@@ -14,9 +18,14 @@ function DriverDashboard() {
   const [loading, setLoading] = useState(true); // Loading state
   const watchIdRef = useRef(null);
   const [vacancy, setVacancy] = useState("");
+  //const [mes, setMes] = useState("Welcome to the Driver Dashboard!");
+
+  const username = user.username;
+  console.log("Username:", username);
 
   const role = localStorage.getItem("role");
-  if (role !== "driver") {
+  console.log("Role:", role); // Log the role
+  if (role !== "Driver") {
     alert("You are not authorized to access this page.");
     navigate("/login");
   }
@@ -94,12 +103,18 @@ function DriverDashboard() {
 };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">🚌 Driver Live Tracker</h2>
+    <div className="min-h-screen w-full bg-cover bg-fixed bg-center p-2" style={{ backgroundImage: `url(${bgImage})` }}>
+      {/* Welcome Card */}
+      <div className="flex flex-col justify-center items-center">
+          <div className="bg-green-200 p-3 lg:p-6 rounded-xl w-full shadow-sm m-2">
+            {/* <h2 className="text-1xl lg:text-2xl font-semibold text-[#a40ff3] italic">{mes}</h2> */}
+            <h3 className="text-2xl lg:text-3xl font-semibold text-green-800 italic">Welcome {username} <span className="float-fast">👋</span></h3>
+          </div>
 
       {/* Dropdown to select bus */}
-      <div className="mb-4">
-        <label htmlFor="busId" className="block mb-2 font-semibold">
+      <div className="bg-green-200 p-3 lg:p-6 rounded-xl w-auto shadow-sm m-2">
+      <div className="m-2">
+        <label htmlFor="busId" className="block mb-2 font-semibold text-green-800">
           Select Bus:
         </label>
         {loading ? (
@@ -109,7 +124,7 @@ function DriverDashboard() {
             id="busId"
             value={busId}
             onChange={(e) => setBusId(e.target.value)} // Set busId to the selected _id
-            className="border p-2 rounded w-full"
+            className="p-2 rounded w-100 border-0 bg-green-100 shadow"
             >
             <option value="">-- Select Bus --</option>
             {buses.map((bus) => (
@@ -124,16 +139,17 @@ function DriverDashboard() {
       </div>
 
       <div className="mt-4">
-        <label>Available Seats: </label>
+        <label className="block m-2 font-semibold text-green-800">Available Seats: </label>
         <input
           type="number"
           value={vacancy}
           onChange={(e) => setVacancy(e.target.value)}
-          className="border p-1 mx-2"
+          className="border-0 p-1 m-2 rounded w-100 bg-green-100 shadow block"
+          placeholder="Enter available seats"
         />
         <button
           onClick={handleSeatUpdate}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
+          className="bg-green-800 text-white px-3 py-1 rounded cursor-pointer m-2 hover:bg-green-700 transition duration-200 ease-in-out"
         >
           Update Seats
         </button>
@@ -142,9 +158,9 @@ function DriverDashboard() {
       {!sharingLocation ? (
         <button
           onClick={startTrip}
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 m-2 rounded ${
             busId
-              ? "bg-green-600 text-white"
+              ? "bg-green-500 text-white"
               : "bg-gray-400 text-gray-700 cursor-not-allowed"
           }`}
           disabled={!busId}
@@ -165,7 +181,8 @@ function DriverDashboard() {
           Sending live location: <b>{coords.lat}</b>, <b>{coords.lng}</b>
         </p>
       )}
-
+      </div>
+      </div>
     </div>
   );
 }

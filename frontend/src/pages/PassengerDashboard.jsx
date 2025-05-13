@@ -4,10 +4,12 @@ import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const socket = io("http://localhost:5000");
 
 function PassengerDashboard() {
+  const user = useAuth();
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const [routes, setRoutes] = useState([]);
@@ -17,11 +19,30 @@ function PassengerDashboard() {
   const [busLocations, setBusLocations] = useState({});
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  const username = user.username;
+  console.log("Username:", username);
+
   // Check if the user is a passenger
-  if (role !== "passenger") {
+  if (role !== "Passenger") {
     alert("You are not authorized to access this page.");
     navigate("/login");
   }
+  
+  const [passengerLocation, setPassengerLocation] = useState(null);
+
+  useEffect(() => {
+    // Get passenger's current location
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setPassengerLocation({ lat: latitude, lng: longitude });
+      },
+      (err) => console.error("❌ Error getting passenger location:", err),
+      { enableHighAccuracy: true }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
   // Fetch all routes on mount
   useEffect(() => {
@@ -77,15 +98,15 @@ function PassengerDashboard() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">🧍 Passenger Dashboard</h2>
+    <div className="p-4 bg-green-50 min-h-screen">
+      <h2 className="text-xl font-bold m-2 text-green-500">Welcome passenger {username}🧍</h2>
 
       {/* Route Selection */}
       <div className="flex gap-4 mb-4">
         <select
           value={start}
           onChange={(e) => setStart(e.target.value)}
-          className="border p-2 rounded"
+          className="border-0 p-2 rounded bg-green-100 shadow"
         >
           <option value="">Select Start</option>
           {[...new Set(routes.map((r) => r.startPoint))].map((point) => (
@@ -98,7 +119,7 @@ function PassengerDashboard() {
         <select
           value={end}
           onChange={(e) => setEnd(e.target.value)}
-          className="border p-2 rounded"
+          className="border-0 p-2 rounded bg-green-100 shadow"
         >
           <option value="">Select End</option>
           {[...new Set(routes.map((r) => r.endPoint))].map((point) => (
@@ -110,7 +131,7 @@ function PassengerDashboard() {
 
         <button
           onClick={handleSearch}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-green-500 text-white px-4 py-2 rounded"
         >
           Search
         </button>
@@ -146,7 +167,7 @@ function PassengerDashboard() {
           </tbody>
         </table>
       ) : (
-        <p className="text-gray-500 mb-4">No buses found for the selected route.</p>
+        <p className="text-red-500 mb-4">No buses found for the selected route/Try selecting jorney points :)</p>
       )}
 
       {/* Live Map */}
@@ -173,6 +194,12 @@ function PassengerDashboard() {
             )
           );
         })}
+
+        {passengerLocation && (
+          <Marker position={[passengerLocation.lat, passengerLocation.lng]} icon={L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149071.png", iconSize: [30, 30] })}>
+            <Popup>📍 You are here</Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );
