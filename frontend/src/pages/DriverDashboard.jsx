@@ -85,13 +85,15 @@ function DriverDashboard() {
     setSharingLocation(false);
     setCoords({ lat: null, lng: null });
   };
+  const token = localStorage.getItem("token");
+  console.log("Token:", token); // Log the token
 
   const handleSeatUpdate = async () => {
   try {
     const res = await axios.patch(`http://localhost:5000/api/driver/updateSeats/${busId}`, {
       vacancy,
     },
-    { headers : {Authorization: `${localStorage.getItem("token")}`}}
+    { headers : {Authorization: `${token}`}}
   );
     alert("✅ Seat vacancy updated!");
   } catch (err) {

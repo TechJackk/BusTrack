@@ -8,7 +8,7 @@ const { verifyToken } = require("../middleware/authMiddleware"); // ✅ Correct 
 router.get("/dBuses", driverController.getAssignedBuses);
 
 //seat vacancy
-router.patch("/updateSeats/:busId", verifyToken ,async (req, res) => {
+router.patch("/updateSeats/:busId" ,async (req, res) => {
   const { vacancy } = req.body;
 
   try {

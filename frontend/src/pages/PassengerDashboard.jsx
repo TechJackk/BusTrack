@@ -36,6 +36,7 @@ function PassengerDashboard() {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setPassengerLocation({ lat: latitude, lng: longitude });
+        console.log("Geolocation data:", pos.coords);
       },
       (err) => console.error("❌ Error getting passenger location:", err),
       { enableHighAccuracy: true }
