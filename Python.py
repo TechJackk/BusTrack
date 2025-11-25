@@ -1,50 +1,71 @@
-# EXPERIMENT 3: Image Classification using CNN (Short Version with Prediction)
-import tensorflow as tf
-from tensorflow.keras import datasets, layers, models
-import matplotlib.pyplot as plt
-import numpy as np
+import cv2
+import os
 
-# 1. Load and preprocess data
-(train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
-train_images, test_images = train_images / 255.0, test_images / 255.0
+# Create dictionaries for ASCII mapping
+d = {}
+c = {}
+for i in range(255):
+    d[chr(i)] = i
+    c[i] = chr(i)
 
-# CIFAR-10 class names
-class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck']
+# ======== READ IMAGE =========
+# 👉 CHANGE THIS PATH TO WHERE YOUR IMAGE IS SAVED
+image_path = r"C:\Users\TCS\Desktop\img.jpg"
 
-# 2. Build CNN model
-model = models.Sequential([
-    layers.Conv2D(32, (3,3), activation='relu', input_shape=(32,32,3)),
-    layers.MaxPooling2D((2,2)),
-    layers.Conv2D(64, (3,3), activation='relu'),
-    layers.MaxPooling2D((2,2)),
-    layers.Flatten(),
-    layers.Dense(64, activation='relu'),
-    layers.Dense(10, activation='softmax')
-])
+x = cv2.imread(image_path)
+if x is None:
+    print("Error: Image not found. Check your path.")
+    exit()
 
-# 3. Compile and train (only 2 epochs to save time)
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-model.fit(train_images, train_labels, epochs=2, validation_data=(test_images, test_labels))
+rows = x.shape[0]
+cols = x.shape[1]
+print("Image dimensions:", rows, cols)
 
-# 4. Evaluate model
-test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
-print("\nTest Accuracy:", test_acc)
+# ======== INPUTS =========
+key = input("Enter Security Key: ")
+text = input("Enter text to hide: ")
 
-# 5. Predict 4 random test images
-predictions = model.predict(test_images[:4])
+kl = 0
+z = 0
+n = 0
+m = 0
+l = len(text)
 
-plt.figure(figsize=(8,4))
-for i in range(4):
-    plt.subplot(1,4,i+1)
-    plt.xticks([])
-    plt.yticks([])
-    plt.imshow(test_images[i])
-    pred_label = np.argmax(predictions[i])
-    true_label = test_labels[i][0]
-    color = 'green' if pred_label == true_label else 'red'
-    plt.xlabel(f"{class_names[pred_label]}", color=color)
-plt.suptitle("Sample Predictions (Green = Correct, Red = Wrong)")
-plt.show()
+# ======== ENCRYPT & HIDE TEXT =========
+for i in range(l):
+    x[n, m, z] = d[text[i]] ^ d[key[kl]]
+    n += 1
+    m += 1
+    m = (m + 1) % 3
+    kl = (kl + 1) % len(key)
+
+# ======== SAVE ENCRYPTED IMAGE =========
+cv2.imwrite("encrypted_img.jpg", x)
+os.startfile("encrypted_img.jpg")
+print("\nData Hiding in Image completed successfully.")
+
+# ======== EXTRACT OPTION =========
+choice = int(input("\nEnter 1 to extract data from image: "))
+if choice == 1:
+    key1 = input("Re-enter Security Key to extract: ")
+
+    decrypt = ""
+    kl = 0
+    z = 0
+    n = 0
+    m = 0
+
+    if key == key1:
+        for i in range(l):
+            decrypt += c[x[n, m, z] ^ d[key[kl]]]
+            n += 1
+            m += 1
+            m = (m + 1) % 3
+            kl = (kl + 1) % len(key)
+
+        print("\nEncrypted text was:", decrypt)
+
+    else:
+        print("Key does not match ❌")
+else:
+    print("Thank you. Exiting.")
